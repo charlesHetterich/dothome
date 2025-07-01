@@ -1,0 +1,14 @@
+{
+    "name": "@dothome/cli",
+    "version": "0.1.0",
+    "private": false,
+    "bin": {
+        "dothome": "./dist/index.js"
+    },
+    "scripts": {
+        "build": "rollup -c ../../rollup.config.js"
+    },
+    "dependencies": {
+        "commander": "^11.1.0"
+    }
+}

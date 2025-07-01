@@ -1,0 +1,15 @@
+# pnpm-workspace.yaml  (repo root)
+packages:
+  # every leaf workspace lives here
+  - "packages/*"          # cli, config, host, lambda, observables, utils
+  - "examples/*"
+  - "integration-tests/*"
+  - "scripts/*"
+
+# optional: skip rebuilding “native” deps unless their own sources change
+onlyBuiltDependencies:
+  - "@swc/core"
+  - esbuild
+  - node-hid
+  - sqlite3
+  - usb

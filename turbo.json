@@ -1,0 +1,54 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "globalDependencies": [
+        "tsconfig.base.json",
+        "vitest.config.ts",
+        "rollup.config.js"
+    ],
+    "tasks": {
+        "build": {
+            "outputLogs": "new-only",
+            "dependsOn": [
+                "^build"
+            ],
+            "inputs": [
+                "rollup.config.*",
+                "tsconfig.json",
+                "src/**"
+            ],
+            "outputs": [
+                "dist/**",
+                "bin/**"
+            ]
+        },
+        "build-core": {
+            "outputLogs": "new-only",
+            "dependsOn": [
+                "^build-core"
+            ],
+            "inputs": [
+                "rollup.config.*",
+                "tsconfig.json",
+                "src/**"
+            ],
+            "outputs": [
+                "dist/**",
+                "bin/**"
+            ]
+        },
+        "test": {
+            "dependsOn": [
+                "build"
+            ],
+            "inputs": [
+                "test/**",
+                "tests/**"
+            ]
+        },
+        "lint": {
+            "dependsOn": [
+                "build"
+            ]
+        }
+    }
+}

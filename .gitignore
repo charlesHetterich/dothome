@@ -1,1 +1,6 @@
 .papi
+
+*lock.*
+.turbo
+dist
+node_modules
