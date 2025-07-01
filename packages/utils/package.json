@@ -1,0 +1,7 @@
+{
+  "name": "@dothome/utils",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@polkadot-api/descriptors": "*" 
+  }
+}
