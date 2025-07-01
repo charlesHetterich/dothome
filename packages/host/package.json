@@ -4,6 +4,13 @@
     "peerDependencies": {
         "@polkadot-api/descriptors": "*"
     },
+    "devDependencies": {
+        "@types/better-sqlite3": "^7.6.13"
+    },
+    "dependencies": {
+        "drizzle-orm": "^0.44.2",
+        "better-sqlite3": "^11.10.0"
+    },
     "scripts": {
         "build": "echo 'no build yet'"
     }

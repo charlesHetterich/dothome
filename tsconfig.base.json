@@ -22,6 +22,10 @@
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "moduleResolution": "Bundler",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "types": [
+            "vitest/importMeta",
+            "node"
+        ] // lets TS recognise import.meta.vitest
     }
 }
