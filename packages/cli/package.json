@@ -9,6 +9,7 @@
         "build": "rollup -c ../../rollup.config.js"
     },
     "dependencies": {
-        "commander": "^11.1.0"
+        "commander": "^11.1.0",
+        "@dothome/host": "workspace:*"
     }
 }

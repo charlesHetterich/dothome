@@ -23,6 +23,12 @@
         "noFallthroughCasesInSwitch": true,
         "moduleResolution": "Bundler",
         "esModuleInterop": true,
+        "baseUrl": ".",
+        "paths": {
+            "@dothome/host": [
+                "packages/*/src"
+            ],
+        },
         "types": [
             "vitest/importMeta",
             "node"
