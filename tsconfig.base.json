@@ -27,7 +27,7 @@
         "paths": {
             "@dothome/host": [
                 "packages/*/src"
-            ],
+            ]
         },
         "types": [
             "vitest/importMeta",

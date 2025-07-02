@@ -1,18 +1,21 @@
 {
-    "name": "@dothome/host",
+    "name": "@dothome/rpc",
     "version": "0.0.1",
     "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
     "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
             "require": "./dist/index.js",
-            "types": "./dist/index.d.ts",
-            "import": "./dist/esm/index.mjs"
+            "import": "./dist/esm/index.mjs",
+            "types": "./dist/index.d.ts"
         }
     },
     "peerDependencies": {
         "@polkadot-api/descriptors": "*"
+    },
+    "devDependencies": {
+        "@types/better-sqlite3": "^7.6.13"
     },
     "dependencies": {
         "drizzle-orm": "^0.44.2",
