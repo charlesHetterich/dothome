@@ -1,10 +1,7 @@
-import { Observable, Subscription } from "rxjs";
 import * as D from "@polkadot-api/descriptors";
 
-import { Expand } from "../helpers";
-import { FromVirtual, VirtualChainId } from "../known-chains";
-import { FuncTree, LeafFunction, WatchLeaf } from ".";
-import { AppRpc, VirtualRpc } from "@lambdas/app-handler/rpc";
+import { FromVirtual, VirtualChainId, Expand } from "@dothome/utils";
+import { FuncTree, LeafFunction, WatchLeaf } from "..";
 
 export const name = "event";
 
@@ -66,22 +63,25 @@ export type Tree<V extends VirtualChainId = VirtualChainId> = FuncTree<
     typeof TreeExtension
 >;
 
-export function handleLeaf(
-    watchable: {
-        watch: () => Observable<any>;
-    },
-    leaf: WatchLeaf,
-    appRpc: VirtualRpc<AppRpc>,
-    routeId: number
-): Subscription {
-    return watchable.watch().subscribe((data: any) => {
-        const payload = {
-            ...data.payload,
-            __meta: {
-                chain: leaf.chain,
-                path: leaf.path,
-            },
-        };
-        appRpc.pushPayload(routeId, payload);
-    });
-}
+/** MOVE TO HOST */
+// import { AppRpc, VirtualRpc } from "@lambdas/app-handler/rpc";
+
+// export function handleLeaf(
+//     watchable: {
+//         watch: () => Observable<any>;
+//     },
+//     leaf: WatchLeaf,
+//     appRpc: VirtualRpc<AppRpc>,
+//     routeId: number
+// ): Subscription {
+//     return watchable.watch().subscribe((data: any) => {
+//         const payload = {
+//             ...data.payload,
+//             __meta: {
+//                 chain: leaf.chain,
+//                 path: leaf.path,
+//             },
+//         };
+//         appRpc.pushPayload(routeId, payload);
+//     });
+// }

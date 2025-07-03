@@ -25,13 +25,10 @@ const absoluteAlias = alias({
 export default [
   {
     ...commonOptions,
-    plugins: [absoluteAlias, esbuild()],
+    plugins: [absoluteAlias, esbuild(
+      {target: "esnext"}
+    )],
     output: [
-      {
-        file: `dist/index.js`,
-        format: "cjs",
-        sourcemap: true,
-      },
       {
         dir: `dist/esm`,
         format: "es",

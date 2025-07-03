@@ -28,17 +28,21 @@ export type ChainId =
  */
 export type RelayId = ChainId & (typeof RELAYS)[number];
 
-export const knownChains: readonly ChainId[] = await (async () => {
-    return (Object.keys(D) as (keyof typeof D)[]).filter(
-        (k): k is ChainId =>
-            typeof D[k] === "object" &&
-            "descriptors" in (D[k] as ChainDefinition)
-    );
-})();
+/**
+ * All chains with available descriptors. (Real value equivalent of `ChainId` set)
+ */
+export const knownChains: ChainId[] = (
+    Object.keys(D) as (keyof typeof D)[]
+).filter(
+    (k): k is ChainId =>
+        typeof (D as any)[k] === "object" && "descriptors" in (D as any)[k]
+);
 
-/** derived constant, also concrete */
-export const knownRelays: readonly RelayId[] = knownChains.filter(
-    (id): id is RelayId => (RELAYS as readonly string[]).includes(id)
+/**
+ * All relay chains with available descriptors. (Real value equivalent of `RelayId` set)
+ */
+export const knownRelays: RelayId[] = knownChains.filter((id): id is RelayId =>
+    (RELAYS as readonly string[]).includes(id)
 );
 
 /**

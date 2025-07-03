@@ -4,9 +4,6 @@
     "workspaces": [
         "packages/*"
     ],
-    "dependencies": {
-        "@polkadot-api/descriptors": "file:.papi/descriptors"
-    },
     "devDependencies": {
         "@rollup/plugin-alias": "^5.0.2",
         "@rollup/plugin-node-resolve": "^15.2.1",

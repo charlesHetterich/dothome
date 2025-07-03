@@ -1,15 +1,16 @@
 {
     "name": "@dothome/utils",
     "version": "0.0.1",
-    "main": "./dist/index.js",
     "module": "./dist/index.mjs",
     "types": "./dist/index.d.ts",
     "exports": {
         ".": {
-            "require": "./dist/index.js",
             "import": "./dist/esm/index.mjs",
             "types": "./dist/index.d.ts"
         }
+    },
+    "devDependencies": {
+        "@polkadot-api/descriptors": "workspace:*"
     },
     "peerDependencies": {
         "@polkadot-api/descriptors": "*"

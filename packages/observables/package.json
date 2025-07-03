@@ -1,10 +1,25 @@
 {
     "name": "@dothome/observables",
+    "type": "module",
     "version": "0.0.1",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/esm/index.mjs",
+            "types": "./dist/index.d.ts"
+        }
+    },
     "peerDependencies": {
         "@polkadot-api/descriptors": "*"
     },
+    "devDependencies": {
+        "@polkadot-api/descriptors": "workspace:*"
+    },
+    "dependencies": {
+        "@dothome/utils": "workspace:*"
+    },
     "scripts": {
-        "build": "echo 'no build yet'"
+        "build": "rollup -c ../../rollup.config.js"
     }
 }

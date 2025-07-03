@@ -1,17 +1,16 @@
 import { PlainDescriptor, StorageDescriptor } from "polkadot-api";
 import * as D from "@polkadot-api/descriptors";
 
-import { Expand, PartialArgs } from "../helpers";
 import {
+    Expand,
+    PartialArgs,
     knownChains,
     toVirtual,
     VirtualChainId,
     ChainId,
-} from "../known-chains";
-import { Route } from "../apps";
+} from "@dothome/utils";
 
-import * as EVENT from "./event";
-import * as STORAGE from "./storage";
+import * as ROOTS from "./roots";
 /**
  * Roots
  *
@@ -27,10 +26,6 @@ import * as STORAGE from "./storage";
  *     TreeExtension?       object
  * }
  */
-export namespace ROOTS {
-    export import event = EVENT;
-    export import storage = STORAGE;
-}
 
 /**
  * ## WatchLeaf
@@ -39,7 +34,7 @@ export namespace ROOTS {
  * Regardless of which root path we take from `Observables`, all leaves share this
  * common structure. One `WatchLeaf` always corresponds to a single "entity".
  *
- * We can handle more complex watch patterns in a single {@link Route} with lists of
+ * We can handle more complex watch patterns in a single `Route` with lists of
  * `WatchLeaf`s, or by using a higher level, builder pattern based `WatchCollection` class.
  *
  * @property chain   - The chain this leaf is for

@@ -1,10 +1,7 @@
-import { Subscription, Observable } from "rxjs";
 import * as D from "@polkadot-api/descriptors";
 
-import { Expand } from "../helpers";
-import { FromVirtual, VirtualChainId } from "../known-chains";
-import { FuncTree, WatchLeaf } from ".";
-import { AppRpc, VirtualRpc } from "@lambdas/app-handler/rpc";
+import { FromVirtual, VirtualChainId, Expand } from "@dothome/utils";
+import { FuncTree } from "..";
 
 export const name = "storage";
 
@@ -57,50 +54,52 @@ export type Tree<V extends VirtualChainId = VirtualChainId> = FuncTree<
     FromVirtual<V>
 >;
 
+/** MOVE TO HOST */
+// import { AppRpc, VirtualRpc } from "@lambdas/app-handler/rpc";
 /**
  * See PAPI [Storage Queries](https://papi.how/typed/queries) for more understanding
  * of how we handle `.watchEntries` and `.watchValue`.
  */
-export function handleLeaf(
-    watchable: {
-        watchEntries: (...args: any[]) => Observable<any>;
-        watchValue: (...args: any[]) => Observable<any>;
-    },
-    leaf: WatchLeaf,
-    nArgs: number,
-    appRpc: VirtualRpc<AppRpc>,
-    routeId: number
-): Subscription {
-    return (
-        leaf.args.length < nArgs
-            ? leaf.options.finalized == false
-                ? watchable.watchEntries(...leaf.args, { at: "best" })
-                : watchable.watchEntries(...leaf.args)
-            : watchable.watchValue(
-                  ...leaf.args,
-                  leaf.options.finalized ? "finalized" : "best"
-              )
-    ).subscribe((payload: any) => {
-        // Normalize payload structures from `watchEntries` and `watchValue`
-        let _payload: { args: any; value: any }[];
-        if (payload.entries) {
-            _payload = payload.entries;
-        } else {
-            _payload = [{ args: leaf.args, value: payload }];
-        }
+// export function handleLeaf(
+//     watchable: {
+//         watchEntries: (...args: any[]) => Observable<any>;
+//         watchValue: (...args: any[]) => Observable<any>;
+//     },
+//     leaf: WatchLeaf,
+//     nArgs: number,
+//     appRpc: VirtualRpc<AppRpc>,
+//     routeId: number
+// ): Subscription {
+//     return (
+//         leaf.args.length < nArgs
+//             ? leaf.options.finalized == false
+//                 ? watchable.watchEntries(...leaf.args, { at: "best" })
+//                 : watchable.watchEntries(...leaf.args)
+//             : watchable.watchValue(
+//                   ...leaf.args,
+//                   leaf.options.finalized ? "finalized" : "best"
+//               )
+//     ).subscribe((payload: any) => {
+//         // Normalize payload structures from `watchEntries` and `watchValue`
+//         let _payload: { args: any; value: any }[];
+//         if (payload.entries) {
+//             _payload = payload.entries;
+//         } else {
+//             _payload = [{ args: leaf.args, value: payload }];
+//         }
 
-        const refinedPayloads = _payload.map((p) => {
-            return {
-                key: p.args,
-                value: p.value,
-                __meta: {
-                    chain: leaf.chain,
-                    path: leaf.path,
-                },
-            };
-        });
-        for (const p of refinedPayloads) {
-            appRpc.pushPayload(routeId, p);
-        }
-    });
-}
+//         const refinedPayloads = _payload.map((p) => {
+//             return {
+//                 key: p.args,
+//                 value: p.value,
+//                 __meta: {
+//                     chain: leaf.chain,
+//                     path: leaf.path,
+//                 },
+//             };
+//         });
+//         for (const p of refinedPayloads) {
+//             appRpc.pushPayload(routeId, p);
+//         }
+//     });
+// }
