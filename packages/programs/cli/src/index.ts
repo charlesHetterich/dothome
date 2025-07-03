@@ -9,7 +9,6 @@
 import { Command } from "commander";
 import { resolve } from "node:path";
 import { existsSync } from "node:fs";
-import { WatchType } from "@dothome/host";
 
 const program = new Command();
 
@@ -21,7 +20,7 @@ program
     .description("Start DotHome host (demo stub)")
     .action((appsDir: string) => {
         const fullPath = resolve(appsDir);
-        console.log(WatchType.EVENT);
+        console.log("test test testing");
 
         if (!existsSync(fullPath)) {
             console.error(`❌  Path not found: ${fullPath}`);

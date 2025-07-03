@@ -1,0 +1,14 @@
+{
+    "name": "@dothome/cli",
+    "version": "0.0.1-dev.3",
+    "bin": {
+        "dothome": "./dist/esm/index.mjs"
+    },
+    "dependencies": {
+        "commander": "^11.1.0",
+        "@dothome/host": "workspace:*"
+    },
+    "scripts": {
+        "build": "rollup -c ../../../rollup.config.js"
+    }
+}

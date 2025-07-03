@@ -1,21 +1,19 @@
 {
     "name": "@dothome/utils",
     "version": "0.0.1",
-    "module": "./dist/index.mjs",
-    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
             "import": "./dist/esm/index.mjs",
             "types": "./dist/index.d.ts"
         }
     },
-    "devDependencies": {
-        "@polkadot-api/descriptors": "workspace:*"
-    },
     "peerDependencies": {
         "@polkadot-api/descriptors": "*"
     },
+    "devDependencies": {
+        "@polkadot-api/descriptors": "workspace:*"
+    },
     "scripts": {
-        "build": "rollup -c ../../rollup.config.js"
+        "build": "rollup -c ../../../rollup.config.js"
     }
 }

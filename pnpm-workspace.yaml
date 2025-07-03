@@ -1,7 +1,7 @@
 # pnpm-workspace.yaml  (repo root)
 packages:
   # every leaf workspace lives here
-  - "packages/*"          # cli, config, host, lambda, observables, utils
+  - "packages/**"          # cli, config, host, lambda, observables, utils
   - ".papi/descriptors"    # 👈 new line
   - "examples/*"
   - "integration-tests/*"
