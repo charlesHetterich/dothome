@@ -1,5 +1,5 @@
 {
-    "name": "@dothome/rpc",
+    "name": "@dothome/payload",
     "version": "0.0.1",
     "exports": {
         ".": {
@@ -7,14 +7,16 @@
             "types": "./dist/index.d.ts"
         }
     },
+    "peerDependencies": {
+        "@polkadot-api/descriptors": "*"
+    },
     "devDependencies": {
-        "@types/ws": "^8.18.1"
+        "@polkadot-api/descriptors": "workspace:*",
+        "polkadot-api": "^1.14.0"
     },
     "dependencies": {
         "@dothome/observables": "workspace:*",
-        "@dothome/config": "workspace:*",
-        "@dothome/utils": "workspace:*",
-        "ws": "^8.18.2"
+        "@dothome/utils": "workspace:*"
     },
     "scripts": {
         "build": "rollup -c ../../../../rollup.config.js"

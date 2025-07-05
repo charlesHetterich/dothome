@@ -1,0 +1,11 @@
+{
+    "extends": "../../../../tsconfig.base.json",
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "dist",
+        "declaration": true // emits .d.ts → rollup-plugin-dts consumes it
+    },
+    "include": [
+        "src/**/*"
+    ]
+}

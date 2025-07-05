@@ -42,8 +42,10 @@ export default [
     ...commonOptions,
     plugins: [absoluteAlias, dts()],
     output: {
-      file: `dist/index.d.ts`,
-      format: "es",
+        dir: 'dist',
+        format: 'es',
+        preserveModules: true,
+        preserveModulesRoot: 'src'
     },
   },
 ]

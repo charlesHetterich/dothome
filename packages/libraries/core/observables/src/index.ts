@@ -11,6 +11,8 @@ import {
 } from "packages/libraries/utils/dist";
 
 import * as ROOTS from "./roots";
+export * as ROOTS from "./roots";
+
 /**
  * Roots
  *
