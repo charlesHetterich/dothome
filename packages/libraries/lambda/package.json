@@ -7,8 +7,21 @@
             "types": "./dist/index.d.ts"
         }
     },
+    "peerDependencies": {
+        "@polkadot-api/descriptors": "*"
+    },
+    "devDependencies": {
+        "@polkadot-api/descriptors": "workspace:*",
+        "@types/ws": "^8.18.1"
+    },
     "dependencies": {
-        "@dothome/utils": "workspace:*"
+        "@dothome/utils": "workspace:*",
+        "@dothome/rpc": "workspace:*",
+        "@dothome/observables": "workspace:*",
+        "@dothome/config": "workspace:*",
+        "@dothome/context": "workspace:*",
+        "@dothome/payload": "workspace:*",
+        "ws": "^8.18.2"
     },
     "scripts": {
         "build": "rollup -c ../../../rollup.config.js"
