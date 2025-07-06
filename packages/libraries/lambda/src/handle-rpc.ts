@@ -1,12 +1,14 @@
 import WebSocket from "ws";
 import { Context } from "@dothome/context";
-import { RpcPeer, HostRpc } from "@dothome/rpc";
+import { RpcPeer, HostRpc, AppRpc as _AppRpc } from "@dothome/rpc";
 
 import { AppModule } from ".";
 import { processPayload } from "./handle-payload";
 
-export class AppRpc {
-    constructor(private context: Context, private app: AppModule<any, any>) {}
+export class AppRpc extends _AppRpc {
+    constructor(private context: Context, private app: AppModule<any, any>) {
+        super();
+    }
 
     setSettings(settings: object) {
         for (const [key, value] of Object.entries(settings)) {

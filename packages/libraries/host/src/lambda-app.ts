@@ -4,7 +4,7 @@ import { ChainId } from "@dothome/utils";
 import { WatchLeaf } from "@dothome/observables";
 import { Context } from "@dothome/context";
 
-import { AppConfig } from "./config";
+import { AppConfig } from "./handle-configs";
 
 /**
  * A function that handles launching a `TRoute` specification,

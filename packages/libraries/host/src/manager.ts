@@ -1,17 +1,18 @@
 import fs from "fs";
-import path from "path";
 import { spawn } from "child_process";
-import chalk from "chalk";
+import { WebSocketServer } from "ws";
+
 import { Chain, Client, start } from "polkadot-api/smoldot";
 import { getSmProvider } from "polkadot-api/sm-provider";
 import { createClient, getTypedCodecs, TypedApi } from "polkadot-api";
 import * as D from "@polkadot-api/descriptors";
 import * as chains from "polkadot-api/chains";
 
-import { ChainId, RelayId, getRelayId, isRelay } from "@lambdas/app-support";
-import { LambdaApp } from "./app";
-import { WebSocketServer } from "ws";
-import { RpcPeer, HostRpc, AppRpc, VirtualRpc } from "./rpc";
+import { ChainId, RelayId, getRelayId, isRelay } from "@dothome/utils";
+import { RpcPeer, AppRpc, VirtualRpc } from "@dothome/rpc";
+
+import { LambdaApp } from "./lambda-app";
+import { HostRpc } from "./handle-rpc";
 import DB from "./database";
 
 /**
@@ -24,6 +25,7 @@ import DB from "./database";
  * @property apps        - The list of apps to manage
  */
 export class AppsManager {
+    public db = new DB();
     private appRpcs = {} as Record<string, VirtualRpc<AppRpc>>;
     private lightClient: Client;
     private relayChains = {} as Record<RelayId, Chain>;
@@ -32,6 +34,7 @@ export class AppsManager {
     public apps = {} as Record<string, LambdaApp>;
 
     constructor(private rpcPort = 7001) {
+        this.db.startDB();
         this.lightClient = start();
         const wss = new WebSocketServer({ port: this.rpcPort });
         wss.on("connection", (ws, req) => {
@@ -119,39 +122,39 @@ export class AppsManager {
     /**
      * Logs the health & details of a loaded app.
      */
-    private logLaunchStatus(app: LambdaApp) {
-        if (!app.alive) {
-            console.log(
-                "\n" + "[" + chalk.red("x") + "]  " + chalk.bgRed(app.name)
-            );
-            // app.logs.forEach((l) =>
-            //     console.log("[" + chalk.red("Error") + "] " + l)
-            // );
-            return;
-        }
-        console.log(
-            "\n" +
-                "[" +
-                chalk.green("ok") +
-                "] " +
-                chalk.green(app.name) +
-                chalk.white.bold(" watching")
-        );
-        console.log(
-            Object.entries(app.chains)
-                .map(([chainId, n]) => {
-                    return (
-                        "  " +
-                        chalk.yellow(`${n} `) +
-                        chalk.grey("entries on ") +
-                        `${chainId}`
-                    );
-                })
-                .join("\n")
-        );
-        console.log(app.config.settings);
-        console.log("\n" + chalk.grey(app.config.description) + "\n\n");
-    }
+    // private logLaunchStatus(app: LambdaApp) {
+    //     if (!app.alive) {
+    //         console.log(
+    //             "\n" + "[" + chalk.red("x") + "]  " + chalk.bgRed(app.name)
+    //         );
+    //         // app.logs.forEach((l) =>
+    //         //     console.log("[" + chalk.red("Error") + "] " + l)
+    //         // );
+    //         return;
+    //     }
+    //     console.log(
+    //         "\n" +
+    //             "[" +
+    //             chalk.green("ok") +
+    //             "] " +
+    //             chalk.green(app.name) +
+    //             chalk.white.bold(" watching")
+    //     );
+    //     console.log(
+    //         Object.entries(app.chains)
+    //             .map(([chainId, n]) => {
+    //                 return (
+    //                     "  " +
+    //                     chalk.yellow(`${n} `) +
+    //                     chalk.grey("entries on ") +
+    //                     `${chainId}`
+    //                 );
+    //             })
+    //             .join("\n")
+    //     );
+    //     console.log(app.config.settings);
+    //     console.log("\n" + chalk.grey(app.config.description) + "\n\n");
+    // }
 
     /**
      * Start all apps from the `appsDir` directory
@@ -173,29 +176,6 @@ export class AppsManager {
             const token = appName;
             this.apps[token] = new LambdaApp(appName);
 
-            // Launch app
-            // const p = spawn(
-            //     "deno",
-            //     [
-            //         "run",
-            //         "--quiet",
-            //         "--unstable-detect-cjs",
-            //         "--allow-env=HOST_PORT,SESSION_TOKEN,WS_NO_BUFFER_UTIL,WS_NO_UTF_8_VALIDATE",
-            //         `--allow-net=127.0.0.1:${this.rpcPort}`,
-            //         "--no-prompt",
-            //         "index.ts",
-            //     ],
-            //     {
-            //         stdio: ["ignore", "pipe", "pipe"],
-            //         env: {
-            //             ...process.env,
-            //             HOST_PORT: `${this.rpcPort}`,
-            //             SESSION_TOKEN: token,
-            //         },
-            //         cwd: path.join(appsDir, appName),
-            //     }
-            // );
-
             const p = spawn(
                 "ignite",
                 [
@@ -210,7 +190,7 @@ export class AppsManager {
                     "--size",
                     "2GB",
                     "--port",
-                    `${hostPort}:${this.rpcPort}/tcp`,
+                    `${this.rpcPort}:${this.rpcPort}/tcp`,
                     "--env",
                     `HOST_PORT=${this.rpcPort}`,
                     "--env",
@@ -222,13 +202,13 @@ export class AppsManager {
             // Pipe app logs to database
             const wireStream = (s: NodeJS.ReadableStream, isErr: boolean) => {
                 const flush = (text: string) => {
-                    DB.logs.push(appName, text);
+                    this.db.logs.push(appName, text);
 
                     // mirror to console, but **don’t touch** the app’s colours
-                    const tag = chalk.cyan(`[${appName}]`);
-                    console.log(
-                        isErr ? chalk.red(tag) + " " + text : tag + " " + text
-                    );
+                    // const tag = chalk.cyan(`[${appName}]`);
+                    // console.log(
+                    //     isErr ? chalk.red(tag) + " " + text : tag + " " + text
+                    // );
                 };
                 s.on("data", flush);
             };

@@ -1,15 +1,20 @@
-import { HostRpc as _HostRpc } from "@dothome/rpc";
-import { Configuration } from "@dothome/config";
+import { VirtualRpc, AppRpc, HostRpc as _HostRpc } from "@dothome/rpc";
 import { WatchLeaf, ROOTS } from "@dothome/observables";
+import { Configuration } from "@dothome/config";
 
-import { loadConfigurations } from "./config";
+import { AppsManager } from ".";
+import { LambdaApp } from "./lambda-app";
+import { loadConfigurations } from "./handle-configs";
+import { Listener } from "./observable-listener";
 
 export class HostRpc extends _HostRpc {
     constructor(
         private manager: AppsManager,
         private app: LambdaApp,
         private appRpc: VirtualRpc<AppRpc>
-    ) {}
+    ) {
+        super();
+    }
 
     async register(
         configurations: Configuration[],
@@ -17,7 +22,8 @@ export class HostRpc extends _HostRpc {
     ) {
         this.app.config = await loadConfigurations(
             this.app.name,
-            configurations
+            configurations,
+            this.manager.db
         );
         this.app.chains = observables
             .flat()
@@ -36,36 +42,19 @@ export class HostRpc extends _HostRpc {
                 let codec: any = await this.manager.getCodec(leaf.chain);
                 for (const pth of path_arr) {
                     watchable =
-                        watchable[pth == WatchType.STORAGE ? "query" : pth];
-                    codec = codec[pth == WatchType.STORAGE ? "query" : pth];
+                        watchable[pth == ROOTS.storage.name ? "query" : pth];
+                    codec = codec[pth == ROOTS.storage.name ? "query" : pth];
                 }
 
-                // Start subscription based on observable
-                let sub: Subscription;
-                switch (path_arr[0]) {
-                    case WatchType.EVENT:
-                        sub = ROOTS.event.handleLeaf(
-                            watchable,
-                            leaf,
-                            this.appRpc,
-                            idx
-                        );
-                        break;
-                    case WatchType.STORAGE:
-                        const nArgs: number = codec.args.inner.length;
-                        sub = ROOTS.storage.handleLeaf(
-                            watchable,
-                            leaf,
-                            nArgs,
-                            this.appRpc,
-                            idx
-                        );
-                        break;
-                    default:
-                        throw new Error(
-                            `Invalid \`Observables\` route on chain ${leaf.chain} with path ${path_arr}. Must start with "event" or "query".`
-                        );
-                }
+                // Begin listening to observable
+                let sub = Listener.listenTo(
+                    path_arr[0] as any,
+                    watchable,
+                    leaf,
+                    this.appRpc,
+                    idx,
+                    codec.args ? codec.args.inner.length : 0
+                );
 
                 // Keep pointer to subscription in Lambda app
                 this.app.subscriptions.set(leaf, sub);
@@ -75,7 +64,6 @@ export class HostRpc extends _HostRpc {
             }
         });
         this.app.alive = true;
-        console.log("not implemented!");
 
         // send requirements for context back
         return this.app.config.settings;

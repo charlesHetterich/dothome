@@ -66,26 +66,3 @@ export type Tree<V extends VirtualChainId = VirtualChainId> = FuncTree<
     FromVirtual<V>,
     typeof TreeExtension
 >;
-
-/** MOVE TO HOST */
-// import { AppRpc, VirtualRpc } from "@lambdas/app-handler/rpc";
-
-// export function handleLeaf(
-//     watchable: {
-//         watch: () => Observable<any>;
-//     },
-//     leaf: WatchLeaf,
-//     appRpc: VirtualRpc<AppRpc>,
-//     routeId: number
-// ): Subscription {
-//     return watchable.watch().subscribe((data: any) => {
-//         const payload = {
-//             ...data.payload,
-//             __meta: {
-//                 chain: leaf.chain,
-//                 path: leaf.path,
-//             },
-//         };
-//         appRpc.pushPayload(routeId, payload);
-//     });
-// }
