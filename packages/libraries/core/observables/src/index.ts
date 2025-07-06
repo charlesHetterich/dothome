@@ -341,6 +341,8 @@ if (import.meta.vitest) {
                      * are actually options for *event observables*
                      */
                     const leaves = Observables.event.polkadot.System.all();
+                    // @ts-ignore | TODO! I think this is here for a reason?
+                    //                    See if we should get rid of it
                     const pths = leaves.map((l) => l.path);
                     expect(leaves[0].options).toEqual({});
                 });
