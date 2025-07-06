@@ -5,7 +5,11 @@ import { WatchLeaf } from "@dothome/observables";
 import { Route } from ".";
 
 /**
- * DOCS! docs
+ * Process a new payload pushed to a {@link Route} within this application.
+ *
+ * {@link Context} is provided to both trigger & lambda, which is built
+ * before the Host can ever push a payload. We filter the payload through our
+ * trigger, and pass filtered payload to the lambda.
  */
 export async function processPayload<WLs extends WatchLeaf[]>(
     payload: PossiblePayload<WLs>,

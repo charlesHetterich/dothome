@@ -1,13 +1,12 @@
-import WebSocket from "ws";
 import * as D from "@polkadot-api/descriptors";
 
-import { RpcPeer, HostRpc } from "@dothome/rpc";
-import { AppRpc } from "./rpc";
 import { Expand } from "@dothome/utils";
 import { PossiblePayload } from "@dothome/payload";
 import { WatchLeaf } from "@dothome/observables";
 import { Context } from "@dothome/context";
-import * as Config from "@dothome/config";
+import { Configuration } from "@dothome/config";
+
+import { connectToHost } from "./handle-rpc";
 
 /**
  * Specifies a single route within an lambda application.
@@ -20,7 +19,7 @@ import * as Config from "@dothome/config";
  */
 export type Route<
     WLs extends readonly WatchLeaf[] = readonly WatchLeaf[],
-    Config extends readonly Config.Configuration[] = readonly Config.Configuration[]
+    Config extends readonly Configuration[] = readonly Configuration[]
 > = {
     /**
      * ## watching
@@ -55,42 +54,17 @@ export type Route<
  */
 export interface AppModule<
     WLss extends readonly WatchLeaf[][] = WatchLeaf[][],
-    Config extends readonly Config.Configuration[] = Config.Configuration[]
+    Config extends readonly Configuration[] = Configuration[]
 > {
     config: Config;
     routes: { [K in keyof WLss]: Route<WLss[K], Config> };
-}
-
-async function connectToHost(app: AppModule<any, any>) {
-    // NOTE: This code runs inside of the deno-containerized application.
-    //       Host always launches with the given environment variables set.
-    const hostPort = process.env.HOST_PORT!;
-    const token = process.env.SESSION_TOKEN!;
-
-    // Establish App <--> Host RPC
-    const ws = new WebSocket(`ws://127.0.0.1:${hostPort}?token=${token}`);
-    await new Promise((r) => (ws.onopen = r));
-    const peer = new RpcPeer(ws, HostRpc.prototype);
-
-    // Register with host & fetch settings
-    peer.awayRpc
-        .register(
-            app.config,
-            app.routes.map((r) => r.watching)
-        )
-        .then((settings) => {
-            peer.homeRpc = new AppRpc(new Context(settings), app);
-        })
-        .catch((err) => {
-            console.error("Failed to connect to host:", err);
-        });
 }
 
 /**
  * Convenience builder function for specifying a lambda `TAppModule` with built-in type hints.
  */
 export async function App<
-    const Config extends Config.Configuration[],
+    const Config extends Configuration[],
     const WLss extends readonly WatchLeaf[][]
 >(
     config: Config,
@@ -128,15 +102,15 @@ export type TApp<AppM extends AppModule<any, any>> = {
             RTrigger: ReturnType<AppM["routes"][K]["trigger"]>;
         };
     };
-    Context: AppM extends AppModule<infer WLss, infer Config>
+    Context: AppM extends AppModule<infer _, infer Config>
         ? Context<Config>
         : never;
 };
 
-import type { TypedApi } from "polkadot-api";
 if (import.meta.vitest) {
     const { test, expectTypeOf } = import.meta.vitest;
     const { Observables } = await import("@dothome/observables");
+    const { Config } = await import("@dothome/config");
 
     test("`App` function propagates correct payload type", () => {
         App([Config.Description("test")], {
@@ -194,8 +168,8 @@ if (import.meta.vitest) {
         );
     });
 
-    test("`TApp` correctly organizes types extracted from an `AppModule` instance", () => {
-        const app = App(
+    test("`TApp` correctly organizes types extracted from an `AppModule` instance", async () => {
+        const app = await App(
             [
                 Config.Description("test"),
                 Config.Setting.string("email"),
@@ -203,14 +177,14 @@ if (import.meta.vitest) {
             ],
             {
                 watching: Observables.event.polkadot.Bounties.BountyProposed(),
-                trigger: (_, c) => true,
+                trigger: (_, __) => true,
                 lambda: (_, __) => {},
             },
             {
                 watching:
                     Observables.event.rococoV2_2.Bounties.BountyProposed(),
                 trigger: (_, __) => true,
-                lambda: (_, c) => {},
+                lambda: (_, __) => {},
             }
         );
 
@@ -221,15 +195,10 @@ if (import.meta.vitest) {
         expectTypeOf<A["Routes"]["1"]["Payload"]>().toEqualTypeOf<
             D.Rococo_v2_2Events["Bounties"]["BountyProposed"]
         >();
-        type dddd = A["Context"]["settings"];
         expectTypeOf<A["Context"]>().toEqualTypeOf<{
-            apis: {
-                polkadot: TypedApi<(typeof D)["polkadot"]>;
-                rococoV2_2: TypedApi<(typeof D)["rococo_v2_2"]>;
-            };
             settings: {
-                readonly email: string;
-                readonly password: string;
+                email: string;
+                password: string;
             };
         }>();
     });
