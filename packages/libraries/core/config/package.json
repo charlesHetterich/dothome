@@ -1,16 +1,11 @@
 {
     "name": "@dothome/config",
     "version": "0.0.1",
-    "module": "./dist/index.mjs",
-    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
             "import": "./dist/esm/index.mjs",
             "types": "./dist/index.d.ts"
         }
-    },
-    "bin": {
-        "dothome": "./dist/index.js"
     },
     "peerDependencies": {
         "@polkadot-api/descriptors": "*"
