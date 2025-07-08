@@ -1,0 +1,13 @@
+{
+    "scripts": {
+        "start": "bun src/index.ts"
+    },
+    "devDependencies": {
+        "typescript": "^5.5.0"
+    },
+    "dependencies": {
+        "@dothome/lambda": "workspace:^",
+        "@polkadot-api/descriptors": "file:../../.papi/descriptors"
+    },
+    "packageManager": "pnpm@10.11.1"
+}

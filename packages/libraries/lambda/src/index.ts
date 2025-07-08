@@ -203,3 +203,6 @@ if (import.meta.vitest) {
         }>();
     });
 }
+
+export { Observables } from "@dothome/observables";
+export { Config } from "@dothome/config";

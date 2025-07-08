@@ -21,6 +21,7 @@
         "vitest": "^3.1.4"
     },
     "scripts": {
+        "test": "vitest",
         "pub": "pnpm turbo run build && pnpm -r version prerelease --preid dev && pnpm -r publish --tag dev --access public --no-git-checks"
     },
     "packageManager": "pnpm@10.11.1"
