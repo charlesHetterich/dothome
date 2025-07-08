@@ -27,6 +27,6 @@
         "types": [
             "vitest/importMeta",
             "node"
-        ] // lets TS recognise import.meta.vitest
+        ]
     }
 }
