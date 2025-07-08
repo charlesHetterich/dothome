@@ -1,10 +1,6 @@
 import * as D from "@polkadot-api/descriptors";
 
-import {
-    FromVirtual,
-    VirtualChainId,
-    Expand,
-} from "packages/libraries/utils/dist";
+import { FromVirtual, VirtualChainId, Expand } from "@dothome/utils";
 import { FuncTree } from "..";
 
 export const name = "storage";

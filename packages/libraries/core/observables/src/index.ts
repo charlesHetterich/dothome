@@ -8,7 +8,7 @@ import {
     toVirtual,
     VirtualChainId,
     ChainId,
-} from "packages/libraries/utils/dist";
+} from "@dothome/utils";
 
 import * as ROOTS from "./roots";
 export * as ROOTS from "./roots";
