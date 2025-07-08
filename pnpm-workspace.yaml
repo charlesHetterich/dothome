@@ -7,10 +7,14 @@ packages:
   - "integration-tests/*"
   - "scripts/*"
 
+# TODO! inspect each of them & remove ones not needed 
+# (probably everything besides `better-sqlite3`, the rest were copied from papi repo)
+# 
 # optional: skip rebuilding “native” deps unless their own sources change
 onlyBuiltDependencies:
   - "@swc/core"
   - esbuild
   - node-hid
   - sqlite3
+  - better-sqlite3
   - usb

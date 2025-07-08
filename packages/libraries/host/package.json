@@ -12,7 +12,8 @@
     },
     "devDependencies": {
         "@polkadot-api/descriptors": "workspace:*",
-        "@types/ws": "^8.18.1"
+        "@types/ws": "^8.18.1",
+        "drizzle-kit": "^0.31.1"
     },
     "dependencies": {
         "@dothome/observables": "workspace:*",

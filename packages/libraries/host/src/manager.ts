@@ -34,7 +34,6 @@ export class AppsManager {
     public apps = {} as Record<string, LambdaApp>;
 
     constructor(private rpcPort = 7001) {
-        this.db.startDB();
         this.lightClient = start();
         const wss = new WebSocketServer({ port: this.rpcPort });
         wss.on("connection", (ws, req) => {
@@ -159,7 +158,10 @@ export class AppsManager {
     /**
      * Start all apps from the `appsDir` directory
      */
-    startApps(appsDir: string) {
+    async startApps(appsDir: string) {
+        // Get db started up before running any apps
+        await this.db.startDB();
+
         // Find all apps in `appsDir`
         let appNames: string[];
         if (fs.existsSync(appsDir)) {
