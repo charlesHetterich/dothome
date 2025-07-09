@@ -89,6 +89,7 @@ export class AppsManager {
         // Ensure the chainId is valid
         const descriptor = D[chainId];
         if (!descriptor) {
+            // TODO! attempt to install the chain descriptor, and throw only if that fails
             throw new Error(
                 `No descriptor found for chainId: ${chainId}. Please add it using the \`npx papi add\` command.`
             );
@@ -160,7 +161,10 @@ export class AppsManager {
      */
     async startApps(appsDir: string) {
         // Get db started up before running any apps
+                    console.log("starter up!")
+
         await this.db.startDB();
+            console.log("starter up!!!")
 
         // Find all apps in `appsDir`
         let appNames: string[];
@@ -172,7 +176,11 @@ export class AppsManager {
         } else {
             throw new Error(`Apps directory ${appsDir} not found.`);
         }
+            console.log(appNames)
 
+
+
+            
         // Start each app inside its own Deno container
         for (const appName of appNames) {
             const token = appName;
@@ -207,10 +215,10 @@ export class AppsManager {
                     this.db.logs.push(appName, text);
 
                     // mirror to console, but **don’t touch** the app’s colours
-                    // const tag = chalk.cyan(`[${appName}]`);
-                    // console.log(
-                    //     isErr ? chalk.red(tag) + " " + text : tag + " " + text
-                    // );
+                    const tag = chalk.cyan(`[${appName}]`);
+                    console.log(
+                        isErr ? chalk.red(tag) + " " + text : tag + " " + text
+                    );
                 };
                 s.on("data", flush);
             };
