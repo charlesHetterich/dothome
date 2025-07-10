@@ -1,6 +1,7 @@
 {
     "name": "@dothome/cli",
     "version": "0.0.1-dev.3",
+    "type": "module",
     "bin": {
         "dothome": "./dist/esm/index.mjs"
     },

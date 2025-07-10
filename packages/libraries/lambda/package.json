@@ -1,8 +1,10 @@
 {
     "name": "@dothome/lambda",
     "version": "0.0.1",
+    "type": "module",
     "exports": {
         ".": {
+            "default": "./src/index.ts",
             "import": "./dist/esm/index.mjs",
             "types": "./dist/index.d.ts"
         }
@@ -24,6 +26,7 @@
         "ws": "^8.18.2"
     },
     "scripts": {
-        "build": "rollup -c ../../../rollup.config.js"
+        "build-core": "rollup -c ../../../rollup.config.js",
+        "build": "pnpm build-core"
     }
 }

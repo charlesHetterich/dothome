@@ -17,8 +17,7 @@
                 "src/**"
             ],
             "outputs": [
-                "dist/**",
-                "bin/**"
+                "dist/**"
             ]
         },
         "build-core": {
@@ -32,8 +31,7 @@
                 "src/**"
             ],
             "outputs": [
-                "dist/**",
-                "bin/**"
+                "dist/**"
             ]
         },
         "test": {

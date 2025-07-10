@@ -1,8 +1,10 @@
 {
     "name": "@dothome/utils",
     "version": "0.0.1",
+    "type": "module",
     "exports": {
         ".": {
+            "default": "./src/index.ts",
             "import": "./dist/esm/index.mjs",
             "types": "./dist/index.d.ts"
         }
@@ -14,6 +16,7 @@
         "@polkadot-api/descriptors": "workspace:*"
     },
     "scripts": {
-        "build": "rollup -c ../../../rollup.config.js"
+        "build-core": "rollup -c ../../../rollup.config.js",
+        "build": "pnpm build-core"
     }
 }

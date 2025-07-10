@@ -5,7 +5,6 @@
         "packages/*"
     ],
     "devDependencies": {
-        "@dothome/cli": "workspace:*",
         "@rollup/plugin-alias": "^5.0.2",
         "@rollup/plugin-node-resolve": "^15.2.1",
         "@types/better-sqlite3": "^7.6.13",
@@ -24,7 +23,8 @@
     },
     "scripts": {
         "test": "vitest",
-        "pub": "pnpm turbo run build && pnpm -r version prerelease --preid dev && pnpm -r publish --tag dev --access public --no-git-checks"
+        "pub": "pnpm turbo run build && pnpm -r version prerelease --preid dev && pnpm -r publish --tag dev --access public --no-git-checks",
+        "dev": "NODE_OPTIONS='--conditions development' tsx watch packages/programs/cli/src/index.ts"
     },
     "packageManager": "pnpm@10.11.1"
 }

@@ -1,8 +1,10 @@
 {
     "name": "@dothome/rpc",
     "version": "0.0.1",
+    "type": "module",
     "exports": {
         ".": {
+            "default": "./src/index.ts",
             "import": "./dist/esm/index.mjs",
             "types": "./dist/index.d.ts"
         }

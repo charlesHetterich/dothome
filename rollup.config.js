@@ -30,6 +30,7 @@ export default [
             absoluteAlias,
             esbuild({ target: "esnext" }),
             copy({
+                // Ship migrations with ESM build
                 targets: [
                     {
                         src: "src/**/migrations/**/*",
