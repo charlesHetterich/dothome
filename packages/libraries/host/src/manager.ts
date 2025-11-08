@@ -1,6 +1,6 @@
 import fs from "fs";
-import { spawn } from "child_process";
 import { WebSocketServer } from "ws";
+import path from "node:path";
 
 import { Chain, Client, start } from "polkadot-api/smoldot";
 import { getSmProvider } from "polkadot-api/sm-provider";
@@ -14,6 +14,13 @@ import { RpcPeer, AppRpc, VirtualRpc } from "@dothome/rpc";
 import { LambdaApp } from "./lambda-app";
 import { HostRpc } from "./handle-rpc";
 import DB from "./database";
+import chalk from "chalk";
+import {
+    createExecutionEnvironment,
+    ExecutionEnvironment,
+    ExecutionEnvironmentSpecifier,
+    ManagedChildProcess,
+} from "./execution-environment";
 
 /**
  * Handles overarching app logic & management
@@ -32,8 +39,16 @@ export class AppsManager {
     private codecs = {} as Record<ChainId, any>;
     public apis = {} as Record<ChainId, TypedApi<(typeof D)[ChainId]>>;
     public apps = {} as Record<string, LambdaApp>;
+    private executionEnvironment: ExecutionEnvironment;
 
-    constructor(private rpcPort = 7001) {
+    constructor(
+        private rpcPort = 7001,
+        envSpecifier?: ExecutionEnvironment | ExecutionEnvironmentSpecifier
+    ) {
+        this.executionEnvironment =
+            typeof envSpecifier === "object" && envSpecifier !== null
+                ? (envSpecifier as ExecutionEnvironment)
+                : createExecutionEnvironment(envSpecifier);
         this.lightClient = start();
         const wss = new WebSocketServer({ port: this.rpcPort });
         wss.on("connection", (ws, req) => {
@@ -161,10 +176,10 @@ export class AppsManager {
      */
     async startApps(appsDir: string) {
         // Get db started up before running any apps
-                    console.log("starter up!")
+        console.log("starter up!");
 
         await this.db.startDB();
-            console.log("starter up!!!")
+        console.log("starter up!!!");
 
         // Find all apps in `appsDir`
         let appNames: string[];
@@ -176,55 +191,47 @@ export class AppsManager {
         } else {
             throw new Error(`Apps directory ${appsDir} not found.`);
         }
-            console.log(appNames)
+        console.log(appNames);
 
+        // Start each app inside the selected execution environment
+        console.log(
+            chalk.gray(
+                `Using ${this.executionEnvironment.name} execution environment`
+            )
+        );
 
-
-            
-        // Start each app inside its own Deno container
         for (const appName of appNames) {
             const token = appName;
             this.apps[token] = new LambdaApp(appName);
+            const appPath = path.join(appsDir, appName);
 
-            const p = spawn(
-                "ignite",
-                [
-                    "run",
-                    `ghcr.io/myco/${appName}:latest`,
-                    "--name",
-                    token,
-                    "--cpus",
-                    "1",
-                    "--memory",
-                    "256MB",
-                    "--size",
-                    "2GB",
-                    "--port",
-                    `${this.rpcPort}:${this.rpcPort}/tcp`,
-                    "--env",
-                    `HOST_PORT=${this.rpcPort}`,
-                    "--env",
-                    `SESSION_TOKEN=${token}`,
-                ],
-                { stdio: ["ignore", "pipe", "pipe"] }
-            );
+            const proc = this.executionEnvironment.launchApp({
+                appName,
+                appPath,
+                hostPort: this.rpcPort,
+                sessionToken: token,
+            });
 
-            // Pipe app logs to database
-            const wireStream = (s: NodeJS.ReadableStream, isErr: boolean) => {
-                const flush = (text: string) => {
-                    this.db.logs.push(appName, text);
-
-                    // mirror to console, but **don’t touch** the app’s colours
-                    const tag = chalk.cyan(`[${appName}]`);
-                    console.log(
-                        isErr ? chalk.red(tag) + " " + text : tag + " " + text
-                    );
-                };
-                s.on("data", flush);
-            };
-            wireStream(p.stdout!, false);
-            wireStream(p.stderr!, true);
+            this.attachProcessLogs(appName, proc);
         }
+    }
+
+    private attachProcessLogs(appName: string, proc: ManagedChildProcess) {
+        const wireStream = (stream: NodeJS.ReadableStream, isErr: boolean) => {
+            const flush = (chunk: string | Buffer) => {
+                const text = chunk.toString();
+                this.db.logs.push(appName, text);
+
+                const tag = chalk.cyan(`[${appName}]`);
+                console.log(
+                    isErr ? chalk.red(tag) + " " + text : tag + " " + text
+                );
+            };
+            stream.on("data", flush);
+        };
+
+        wireStream(proc.stdout, false);
+        wireStream(proc.stderr, true);
     }
 }
 

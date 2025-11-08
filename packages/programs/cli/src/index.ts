@@ -9,6 +9,7 @@
 import { Command } from "commander";
 import { resolve } from "node:path";
 import { existsSync } from "node:fs";
+import { AppsManager } from "@dothome/host";
 
 const program = new Command();
 
@@ -18,7 +19,7 @@ program
     .command("start")
     .argument("<appsDir>", "Path to the directory that hosts your apps")
     .description("Start DotHome host (demo stub)")
-    .action((appsDir: string) => {
+    .action(async (appsDir: string) => {
         const fullPath = resolve(appsDir);
         console.log("test test testing");
 
@@ -31,7 +32,10 @@ program
         console.log(
             `👋  Hello world! Starting DotHome with apps in:\n    ${fullPath}`
         );
-        // TODO: replace this stub with real startup logic
+
+        // Start up w/o micro-vm protection no 'local'
+        const manager = new AppsManager(undefined, "local");
+        await manager.startApps(fullPath);
     });
 
 program.parse();

@@ -22,7 +22,9 @@
         "vitest": "^3.1.4"
     },
     "scripts": {
+        "start": "pnpm exec tsx packages/programs/cli/src/index.ts start ./example-apps",
         "test": "vitest",
+        "build": "pnpm turbo run build",
         "pub": "pnpm turbo run build && pnpm -r version prerelease --preid dev && pnpm -r publish --tag dev --access public --no-git-checks",
         "dev": "NODE_OPTIONS='--conditions development' tsx watch packages/programs/cli/src/index.ts"
     },

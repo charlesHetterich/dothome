@@ -51,6 +51,10 @@ export async function connectToHost(app: AppModule<any, any>) {
             peer.homeRpc = new AppRpc(new Context(settings), app);
         })
         .catch((err) => {
-            console.error("Failed to connect to host:", err);
+            if (err instanceof Error) {
+                console.error("Failed to connect to host:", err.stack || err);
+            } else {
+                console.error("Failed to connect to host:", err);
+            }
         });
 }

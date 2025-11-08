@@ -4,7 +4,16 @@ import { AppRpc } from "./app";
 
 export { HostRpc, AppRpc };
 export type RpcRequest = { id: number; method: string; params: any[] };
-export type RpcResponse = { id: number; result?: unknown; error?: string };
+export type RpcSerializedError = {
+    message: string;
+    stack?: string;
+    name?: string;
+};
+export type RpcResponse = {
+    id: number;
+    result?: unknown;
+    error?: RpcSerializedError | string;
+};
 export type RpcMessage = RpcRequest | RpcResponse;
 
 /**
@@ -73,7 +82,7 @@ export class RpcPeer<
             .map((method) => {
                 return [
                     method,
-                    (params: any[]) => this.callRemote(method, params),
+                    (...params: any[]) => this.callRemote(method, params),
                 ] as const;
             });
         return Object.fromEntries(props) as VirtualRpc<AwayRpc>;
@@ -90,7 +99,11 @@ export class RpcPeer<
             const id = this.nextRequestId++;
             this.pendingResponse.set(id, (reply) => {
                 this.pendingResponse.delete(id);
-                "error" in reply ? reject(reply.error) : resolve(reply.result);
+                if (reply.error) {
+                    reject(deserializeError(reply.error));
+                } else {
+                    resolve(reply.result);
+                }
             });
             this.send({ id, method, params });
         });
@@ -105,11 +118,16 @@ export class RpcPeer<
                 throw new Error("Home RPC is not ready");
             }
 
-            let result: unknown;
-            result = await (this.homeRpc as any)[msg.method](...msg.params);
+            const handler = (this.homeRpc as any)[msg.method];
+            if (typeof handler !== "function") {
+                throw new Error(`Unknown RPC method: ${msg.method}`);
+            }
+            const result = await handler.apply(this.homeRpc, msg.params);
             this.send({ id: msg.id, result });
         } catch (e: any) {
-            this.send({ id: msg.id, result: undefined, error: String(e) });
+            const error = serializeError(e);
+            this.send({ id: msg.id, result: undefined, error });
+            console.error(`[rpc] ${msg.method} failed`, e);
         }
     }
 
@@ -119,4 +137,39 @@ export class RpcPeer<
     send(msg: RpcMessage) {
         this.socket.send(JSON.stringify(msg));
     }
+}
+
+function serializeError(error: unknown): RpcSerializedError {
+    if (error instanceof Error) {
+        return {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+        };
+    }
+    if (typeof error === "string") {
+        return { message: error };
+    }
+    if (error === undefined) {
+        return { message: "Unknown error" };
+    }
+    try {
+        return { message: JSON.stringify(error) };
+    } catch {
+        return { message: String(error) };
+    }
+}
+
+function deserializeError(error: RpcSerializedError | string): Error {
+    if (typeof error === "string") {
+        return new Error(error);
+    }
+    const err = new Error(error.message);
+    if (error.name) {
+        err.name = error.name;
+    }
+    if (error.stack) {
+        err.stack = error.stack;
+    }
+    return err;
 }

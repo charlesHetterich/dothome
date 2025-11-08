@@ -18,15 +18,16 @@
         "drizzle-kit": "^0.31.1"
     },
     "dependencies": {
-        "@dothome/observables": "workspace:*",
         "@dothome/config": "workspace:*",
-        "@dothome/utils": "workspace:*",
-        "@dothome/rpc": "workspace:*",
         "@dothome/context": "workspace:*",
-        "drizzle-orm": "^0.44.2",
+        "@dothome/observables": "workspace:*",
+        "@dothome/rpc": "workspace:*",
+        "@dothome/utils": "workspace:*",
         "better-sqlite3": "^11.10.0",
-        "ws": "^8.18.2",
-        "rxjs": "^7.8.2"
+        "chalk": "^5.6.2",
+        "drizzle-orm": "^0.44.2",
+        "rxjs": "^7.8.2",
+        "ws": "^8.18.2"
     },
     "scripts": {
         "build-core": "rollup -c ../../../rollup.config.js",
