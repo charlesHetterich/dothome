@@ -1,14 +1,10 @@
 import { WebSocket } from "ws";
 import { HostRpc } from "./host";
 import { AppRpc } from "./app";
+import { ParseRPC, RpcSerializedError } from "./parser";
 
 export { HostRpc, AppRpc };
 export type RpcRequest = { id: number; method: string; params: any[] };
-export type RpcSerializedError = {
-    message: string;
-    stack?: string;
-    name?: string;
-};
 export type RpcResponse = {
     id: number;
     result?: unknown;
@@ -66,7 +62,10 @@ export class RpcPeer<
 
         // Route all incoming requests & responses
         this.socket.onmessage = (ev) => {
-            const msg: RpcMessage = JSON.parse(ev.data.toString());
+            const msg: RpcMessage = JSON.parse(
+                ev.data.toString(),
+                ParseRPC.jsonReviver
+            );
             if ("method" in msg) this.onRequest(msg);
             else this.pendingResponse.get(msg.id)?.(msg);
         };
@@ -100,7 +99,7 @@ export class RpcPeer<
             this.pendingResponse.set(id, (reply) => {
                 this.pendingResponse.delete(id);
                 if (reply.error) {
-                    reject(deserializeError(reply.error));
+                    reject(ParseRPC.deserializeError(reply.error));
                 } else {
                     resolve(reply.result);
                 }
@@ -125,7 +124,7 @@ export class RpcPeer<
             const result = await handler.apply(this.homeRpc, msg.params);
             this.send({ id: msg.id, result });
         } catch (e: any) {
-            const error = serializeError(e);
+            const error = ParseRPC.serializeError(e);
             this.send({ id: msg.id, result: undefined, error });
             console.error(`[rpc] ${msg.method} failed`, e);
         }
@@ -135,41 +134,6 @@ export class RpcPeer<
      * Serialize & send outbound message
      */
     send(msg: RpcMessage) {
-        this.socket.send(JSON.stringify(msg));
+        this.socket.send(ParseRPC.serializeMessage(msg));
     }
-}
-
-function serializeError(error: unknown): RpcSerializedError {
-    if (error instanceof Error) {
-        return {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-        };
-    }
-    if (typeof error === "string") {
-        return { message: error };
-    }
-    if (error === undefined) {
-        return { message: "Unknown error" };
-    }
-    try {
-        return { message: JSON.stringify(error) };
-    } catch {
-        return { message: String(error) };
-    }
-}
-
-function deserializeError(error: RpcSerializedError | string): Error {
-    if (typeof error === "string") {
-        return new Error(error);
-    }
-    const err = new Error(error.message);
-    if (error.name) {
-        err.name = error.name;
-    }
-    if (error.stack) {
-        err.stack = error.stack;
-    }
-    return err;
 }

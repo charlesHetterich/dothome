@@ -1,10 +1,4 @@
-import * as D from "@polkadot-api/descriptors";
 import { App, Observables, Config } from "@dothome/lambda";
-
-// console.log(Object.keys(D).join("\n"));
-// console.log(D["polkadot_asset_hub"]);
-
-// console.log(Observables.event.polkadotAssetHub.all());
 
 export default App(
     [
@@ -16,12 +10,13 @@ export default App(
         Config.Permission("write-file"),
     ],
     {
-        watching: [Observables.event.polkadotAssetHub.all()[0]],
+        watching: Observables.event.polkadotAssetHub.all(),
         trigger: (transfer, c) => true,
 
         async lambda(transfer, c) {
             const okk = c.settings;
-            console.log("here!~");
+            console.log("Here!");
+            console.log(transfer);
         },
     }
 );
